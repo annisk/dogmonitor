@@ -57,7 +57,7 @@ var AgeLimit int
 func sendSlackMessage(message string) {
   webhookURL := os.Getenv("SLACK_TOKEN")
   if len(webhookURL) == 0 {
-    webhookURL = "https://hooks.slack.com/services/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"
+    log.Fatalln("SLACK_TOKEN must be defined")
   }
   attachment := slack.Attachment{
     Color:         "good",
@@ -76,7 +76,7 @@ func sendSlackMessage(message string) {
 }
 
 func initDB() *sql.DB {
-  db, _ := sql.Open("sqlite3", "./dogs.db")
+  db, _ := sql.Open("sqlite3", "./db/dogs.db")
   statement, _ := db.Prepare("CREATE TABLE IF NOT EXISTS dogs (id INTEGER PRIMARY KEY, name TEXT, age INT, dogId TEXT UNIQUE, available BOOL)")
   statement.Exec()
   return db
@@ -88,10 +88,6 @@ func insertDog(db *sql.DB, name string, age string, id string) sql.Result {
   if err != nil {
     log.Fatal(err)
   }
-  // rowCnt, err := result.RowsAffected()
-  // if err != nil {
-  //   log.Fatal(err)
-  // }
   return result
 }
 
@@ -189,6 +185,7 @@ func main() {
 
   log.Printf("Querying every %ss", queryFrequency)
   for {
+    log.Printf("Running query")
     // Make request for JSON
     resp, err := http.Get(dogURL)
     if err != nil {
